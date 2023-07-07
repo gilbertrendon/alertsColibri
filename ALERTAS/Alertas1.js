@@ -11,6 +11,7 @@ define(["modules/platform/platformModule"], function () {
 
     async function ($scope, w6serverServices, $window) {
       {
+        $scope.Action = "";
         $scope.Coment = "";
         $scope.ServiceAlertForUpdateQuery = {};
         $scope.Satus = "";
@@ -130,8 +131,9 @@ define(["modules/platform/platformModule"], function () {
               ($scope.LastServiceAlert.FollowUpAction["@DisplayString"] ==
                 "Llamar al proveedor" ||
                 $scope.LastServiceAlert.FollowUpAction["@DisplayString"] ==
-                  "Llamar al cliente") &&
-              $scope.Coment.length > 0
+                  "Llamar al cliente") && 
+              $scope.Coment.length > 0 && ($scope.Action == "Llamar al cliente" 
+              || $scope.Action == "Llamar al proveedor")
             ) {
               LastServiceAlert.ServiceAlertStatus["@DisplayString"] =
                 "Manual Close";
@@ -148,7 +150,9 @@ define(["modules/platform/platformModule"], function () {
         );
         //Fin refresh
       };
-      $scope.getRefreshAlert = async function (ServiceAlertForUpdateQuery) {
+      $scope.updateAndRefreshAlert = async function (
+        ServiceAlertForUpdateQuery
+      ) {
         //Inicio getRefreshAlert
         let resultUpdateSAStatus = w6serverServices.updateObject(
           "ServiceAlert",
@@ -200,6 +204,7 @@ define(["modules/platform/platformModule"], function () {
         }
         $scope.Satus = State.Name;
         $scope.Coment = Coment;
+        $scope.Action = actionName;
         if (State.Name == "Accepted" || State.Name == "Manual Close") {
           const numberOfMlSeconds = new Date(Date.now()).getTime();
           let newDateObj = new Date(numberOfMlSeconds);
@@ -243,6 +248,7 @@ define(["modules/platform/platformModule"], function () {
                   Key: actionKey,
                 },
               };
+              $scope.updateAndRefreshAlert($scope.ServiceAlertForUpdateQuery);
             } else {
               let nextServiceAlertKey = LastServiceAlert["Key"];
               $scope.ServiceAlertForUpdateQuery = {
@@ -261,6 +267,7 @@ define(["modules/platform/platformModule"], function () {
                   Key: 989011968,
                 },
               };
+              $scope.updateAndRefreshAlert($scope.ServiceAlertForUpdateQuery);
             }
           } else if (State.Name == "Manual Close") {
             if (
@@ -286,6 +293,7 @@ define(["modules/platform/platformModule"], function () {
                   Key: actionKey,
                 },
               };
+              $scope.updateAndRefreshAlert($scope.ServiceAlertForUpdateQuery);
             } else {
               // $scope.Opciones = [
               //   {
@@ -299,7 +307,6 @@ define(["modules/platform/platformModule"], function () {
             }
           }
           $scope.refresh();
-          $scope.getRefreshAlert($scope.ServiceAlertForUpdateQuery);
         }
       };
 
